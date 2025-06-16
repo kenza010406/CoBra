@@ -1,270 +1,28 @@
-// page3.js - Mode 1
-// Gestion de la page Mode 1 du système CoBra (contrôle grille de coordonnées)
+// page3.js - Mode 1 (VERSION CORRIGÉE AVEC MODE DIRECT)
+// Gestion de la page Mode 1 du système CoBra (contrôle grille de coordonnées + mode direct)
 
 // Fonction d'initialisation de la page Mode 1
 function initMode1Page() {
-    console.log('Initialisation de la page Mode 1');
+    console.log('Initialisation de la page Mode 1 (version corrigée avec mode direct)');
     
-    // Créer l'élément de contenu principal
-    const mode1Content = document.createElement('div');
-    mode1Content.id = 'mode1';
-    mode1Content.className = 'page';
-    mode1Content.style.display = 'none'; // Masqué par défaut
-    
-    // Créer le panneau de contrôle
-    const controlPanel = document.createElement('div');
-    controlPanel.className = 'control-panel';
-    
-    // Panneau de gauche (Contrôles)
-    const leftPanel = createJoystickPanel();
-    
-    // Panneau de droite (Visualisation)
-    const rightPanel = createGridVisualizationPanel();
-    
-    // Assembler les panneaux dans le panneau de contrôle
-    controlPanel.appendChild(leftPanel);
-    controlPanel.appendChild(rightPanel);
-    
-    // Ajouter le panneau de contrôle à la page
-    mode1Content.appendChild(controlPanel);
-    
-    // Ajouter la page au conteneur principal
-    document.querySelector('.content').appendChild(mode1Content);
-    
-    // Enregistrer les gestionnaires d'événements spécifiques à cette page
+    // Ne pas créer de nouveaux éléments, utiliser ceux qui existent déjà dans le HTML
+    // Enregistrer directement les gestionnaires d'événements sur les éléments existants
     setupMode1EventListeners();
     
-    return mode1Content;
+    // Initialiser les curseurs existants
+    initializeSliders();
+    
+    return document.getElementById('mode1');
 }
 
-// Fonction pour créer le panneau de joystick et contrôles
-function createJoystickPanel() {
-    const panel = document.createElement('div');
-    panel.className = 'panel';
-    
-    // Titre du panneau
-    const title = document.createElement('h3');
-    title.className = 'panel-title';
-    title.textContent = 'Contrôle Joystick';
-    
-    // Conteneur des joysticks
-    const joystickContainer = document.createElement('div');
-    joystickContainer.className = 'joystick-container';
-    
-    // Joystick directionnel (gauche)
-    const joystick1 = document.createElement('div');
-    joystick1.className = 'joystick';
-    joystick1.id = 'joystick1';
-    
-    // Flèches pour le joystick 1
-    ['up', 'down', 'left', 'right'].forEach(direction => {
-        const arrow = document.createElement('div');
-        arrow.className = `arrow arrow-${direction}`;
-        joystick1.appendChild(arrow);
-    });
-    
-    // Joystick vertical (droite)
-    const joystick2 = document.createElement('div');
-    joystick2.className = 'joystick';
-    joystick2.id = 'joystick2';
-    joystick2.style.width = '80px'; // Plus petit
-    
-    // Flèches pour le joystick 2
-    ['up', 'down'].forEach(direction => {
-        const arrow = document.createElement('div');
-        arrow.className = `arrow arrow-${direction}`;
-        joystick2.appendChild(arrow);
-    });
-    
-    // Ajouter les joysticks au conteneur
-    joystickContainer.appendChild(joystick1);
-    joystickContainer.appendChild(joystick2);
-    
-    // Conteneur de curseur de vitesse
-    const sliderContainer = document.createElement('div');
-    sliderContainer.className = 'slider-container';
-    
-    // Étiquette du curseur
-    const sliderLabel = document.createElement('div');
-    sliderLabel.className = 'slider-label';
-    sliderLabel.textContent = 'Vitesse';
-    
-    // Curseur de vitesse
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.min = '0';
-    slider.max = '100';
-    slider.value = '50';
-    slider.className = 'slider';
-    slider.id = 'speedSlider';
-    
-    // Ajouter l'étiquette et le curseur au conteneur
-    sliderContainer.appendChild(sliderLabel);
-    sliderContainer.appendChild(slider);
-    
-    // Indicateur de connexion CAN
-    const connectionStatus = document.createElement('div');
-    connectionStatus.className = 'connection-status';
-    
-    // Étiquette de statut
-    const statusLabel = document.createElement('div');
-    statusLabel.className = 'status-label';
-    statusLabel.textContent = 'Connexion CAN :';
-    
-    // Indicateur visuel
-    const statusIndicator = document.createElement('div');
-    statusIndicator.className = 'status-indicator';
-    statusIndicator.id = 'canStatus';
-    
-    // Assembler l'indicateur de connexion
-    connectionStatus.appendChild(statusLabel);
-    connectionStatus.appendChild(statusIndicator);
-    
-    // Assembler tous les éléments dans le panneau
-    panel.appendChild(title);
-    panel.appendChild(joystickContainer);
-    panel.appendChild(sliderContainer);
-    panel.appendChild(connectionStatus);
-    
-    return panel;
-}
-
-// Fonction pour créer le panneau de visualisation de la grille
-function createGridVisualizationPanel() {
-    const panel = document.createElement('div');
-    panel.className = 'panel';
-    
-    // Titre du panneau
-    const title = document.createElement('h3');
-    title.className = 'panel-title';
-    title.textContent = 'Visualisation de l\'aiguille';
-    
-    // Grille de visualisation
-    const grid = document.createElement('div');
-    grid.className = 'visualization-grid';
-    grid.id = 'visualizationGrid';
-    
-    // Créer les cellules de la grille
-    // Première ligne (en-têtes de colonnes)
-    const headerRow = document.createElement('div');
-    headerRow.className = 'grid-cell grid-header';
-    grid.appendChild(headerRow);
-    
-    for (let i = 1; i <= 6; i++) {
-        const columnHeader = document.createElement('div');
-        columnHeader.className = 'grid-cell grid-header';
-        columnHeader.textContent = i;
-        grid.appendChild(columnHeader);
+// Fonction pour initialiser les curseurs
+function initializeSliders() {
+    const speedSlider = document.getElementById('speedSlider');
+    if (speedSlider) {
+        // Initialiser l'apparence du curseur
+        const value = speedSlider.value;
+        speedSlider.style.background = `linear-gradient(to right, #4caf50 ${value}%, #e0e0e0 ${value}%)`;
     }
-    
-    // Lignes de A à E
-    const rows = ['A', 'B', 'C', 'D', 'E'];
-    rows.forEach(row => {
-        // En-tête de ligne
-        const rowHeader = document.createElement('div');
-        rowHeader.className = 'grid-cell grid-header';
-        rowHeader.textContent = row;
-        grid.appendChild(rowHeader);
-        
-        // Cellules de la ligne
-        for (let col = 1; col <= 6; col++) {
-            const cell = document.createElement('div');
-            cell.className = 'grid-cell';
-            cell.id = `cell-${row}${col}`;
-            
-            // Ajouter le point cible et l'aiguille dans des cellules spécifiques
-            if (row === 'B' && col === 5) {
-                const target = document.createElement('div');
-                target.style.width = '15px';
-                target.style.height = '15px';
-                target.style.border = '2px dashed #e74c3c';
-                target.style.borderRadius = '50%';
-                cell.appendChild(target);
-            }
-            
-            if (row === 'C' && col === 3) {
-                const needleContainer = document.createElement('div');
-                needleContainer.style.position = 'relative';
-                
-                const needlePoint = document.createElement('div');
-                needlePoint.style.width = '10px';
-                needlePoint.style.height = '10px';
-                needlePoint.style.backgroundColor = '#4caf50';
-                needlePoint.style.borderRadius = '50%';
-                
-                const needlePath = document.createElement('div');
-                needlePath.style.width = '2px';
-                needlePath.style.height = '30px';
-                needlePath.style.backgroundColor = '#4caf50';
-                needlePath.style.position = 'absolute';
-                needlePath.style.bottom = '0';
-                needlePath.style.left = '4px';
-                needlePath.style.transform = 'rotate(45deg)';
-                needlePath.style.transformOrigin = 'bottom';
-                
-                needleContainer.appendChild(needlePoint);
-                needleContainer.appendChild(needlePath);
-                cell.appendChild(needleContainer);
-            }
-            
-            grid.appendChild(cell);
-        }
-    });
-    
-    // Affichage des coordonnées
-    const coordinates = document.createElement('div');
-    coordinates.className = 'coordinates';
-    
-    // Coordonnée X
-    const coordX = document.createElement('div');
-    coordX.className = 'coordinate';
-    coordX.id = 'coordX';
-    coordX.innerHTML = 'X: <span class="positive">+28</span>';
-    
-    // Coordonnée Y
-    const coordY = document.createElement('div');
-    coordY.className = 'coordinate';
-    coordY.id = 'coordY';
-    coordY.innerHTML = 'Y: <span class="negative">-16</span>';
-    
-    // Coordonnée Z
-    const coordZ = document.createElement('div');
-    coordZ.className = 'coordinate';
-    coordZ.id = 'coordZ';
-    coordZ.innerHTML = 'Z: <span class="positive">+5</span>';
-    
-    // Ajouter les coordonnées au conteneur
-    coordinates.appendChild(coordX);
-    coordinates.appendChild(coordY);
-    coordinates.appendChild(coordZ);
-    
-    // Boutons d'action
-    const actionButtons = document.createElement('div');
-    actionButtons.className = 'action-buttons';
-    
-    // Bouton Réinitialiser
-    const resetButton = document.createElement('button');
-    resetButton.className = 'action-btn reset-btn';
-    resetButton.textContent = 'Réinitialiser';
-    resetButton.id = 'resetButton';
-    
-    // Bouton d'arrêt d'urgence
-    const emergencyButton = document.createElement('button');
-    emergencyButton.className = 'action-btn emergency-btn';
-    emergencyButton.textContent = 'Arrêt d\'urgence';
-    emergencyButton.id = 'emergencyButton';
-    
-    // Ajouter les boutons au conteneur
-    actionButtons.appendChild(resetButton);
-    actionButtons.appendChild(emergencyButton);
-    
-    // Assembler tous les éléments dans le panneau
-    panel.appendChild(title);
-    panel.appendChild(grid);
-    panel.appendChild(coordinates);
-    panel.appendChild(actionButtons);
-    
-    return panel;
 }
 
 // Configuration des écouteurs d'événements pour la page Mode 1
@@ -293,7 +51,11 @@ function setupMode1EventListeners() {
             // Réinitialiser les coordonnées
             updateNeedleCoordinates(0, 0, 0);
             
-            // Réinitialiser la position visuelle de l'aiguille (à implémenter)
+            // Réinitialiser les valeurs de mode direct
+            resetDirectPositionInputs();
+            
+            // Afficher une notification
+            alert('Système réinitialisé avec succès.');
         });
     }
     
@@ -305,24 +67,50 @@ function setupMode1EventListeners() {
         });
     }
     
-    // Simulation de l'interactivité des joysticks (à développer davantage)
+    // Configuration de l'interactivité des joysticks existants
     setupJoystickInteractions();
+    
+    // Configuration des contrôles de position directe
+    setupDirectPositionControls();
 }
 
 // Fonction pour configurer l'interactivité des joysticks
 function setupJoystickInteractions() {
-    // Le joystick 1 (XY)
-    const joystick1 = document.getElementById('joystick1');
-    if (joystick1) {
-        // Flèches du joystick 1
-        const arrows = joystick1.querySelectorAll('.arrow');
-        arrows.forEach(arrow => {
-            arrow.addEventListener('mousedown', function() {
+    console.log('Configuration des joysticks Mode 1');
+    
+    // Trouver tous les joysticks dans la page mode1
+    const mode1Page = document.getElementById('mode1');
+    if (!mode1Page) {
+        console.error('Page Mode 1 non trouvée');
+        return;
+    }
+    
+    // Sélectionner les joysticks dans la page Mode 1
+    const joysticks = mode1Page.querySelectorAll('.joystick');
+    
+    if (joysticks.length >= 2) {
+        const joystick1 = joysticks[0]; // Premier joystick (XY)
+        const joystick2 = joysticks[1]; // Deuxième joystick (Z)
+        
+        console.log('Joysticks trouvés:', joystick1, joystick2);
+        
+        // Configuration du joystick 1 (XY)
+        const arrows1 = joystick1.querySelectorAll('.arrow');
+        arrows1.forEach(arrow => {
+            arrow.addEventListener('mousedown', function(e) {
+                e.preventDefault();
                 this.style.opacity = '0.5';
                 
-                // Identifier la direction et mettre à jour les coordonnées
-                const direction = this.className.split('arrow-')[1];
-                updateJoystickMovement(direction);
+                // Identifier la direction
+                let direction = '';
+                if (this.classList.contains('arrow-up')) direction = 'up';
+                else if (this.classList.contains('arrow-down')) direction = 'down';
+                else if (this.classList.contains('arrow-left')) direction = 'left';
+                else if (this.classList.contains('arrow-right')) direction = 'right';
+                
+                if (direction) {
+                    updateJoystickMovement(direction);
+                }
             });
             
             arrow.addEventListener('mouseup', function() {
@@ -332,31 +120,253 @@ function setupJoystickInteractions() {
             arrow.addEventListener('mouseleave', function() {
                 this.style.opacity = '1';
             });
+            
+            // Support tactile
+            arrow.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.opacity = '0.5';
+                
+                let direction = '';
+                if (this.classList.contains('arrow-up')) direction = 'up';
+                else if (this.classList.contains('arrow-down')) direction = 'down';
+                else if (this.classList.contains('arrow-left')) direction = 'left';
+                else if (this.classList.contains('arrow-right')) direction = 'right';
+                
+                if (direction) {
+                    updateJoystickMovement(direction);
+                }
+            });
+            
+            arrow.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.opacity = '1';
+            });
+        });
+        
+        // Configuration du joystick 2 (Z)
+        const arrows2 = joystick2.querySelectorAll('.arrow');
+        arrows2.forEach(arrow => {
+            arrow.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                this.style.opacity = '0.5';
+                
+                // Identifier la direction
+                let direction = '';
+                if (this.classList.contains('arrow-up')) direction = 'up';
+                else if (this.classList.contains('arrow-down')) direction = 'down';
+                
+                if (direction) {
+                    updateJoystickZMovement(direction);
+                }
+            });
+            
+            arrow.addEventListener('mouseup', function() {
+                this.style.opacity = '1';
+            });
+            
+            arrow.addEventListener('mouseleave', function() {
+                this.style.opacity = '1';
+            });
+            
+            // Support tactile
+            arrow.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.opacity = '0.5';
+                
+                let direction = '';
+                if (this.classList.contains('arrow-up')) direction = 'up';
+                else if (this.classList.contains('arrow-down')) direction = 'down';
+                
+                if (direction) {
+                    updateJoystickZMovement(direction);
+                }
+            });
+            
+            arrow.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.opacity = '1';
+            });
+        });
+        
+        console.log('Joysticks Mode 1 configurés avec succès');
+    } else {
+        console.error('Joysticks non trouvés dans Mode 1. Nombre trouvé:', joysticks.length);
+    }
+}
+
+// Nouvelle fonction pour configurer les contrôles de position directe
+function setupDirectPositionControls() {
+    console.log('Configuration des contrôles de position directe');
+    
+    // Gestionnaires pour les boutons +/-
+    document.querySelectorAll('#mode1 .coord-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const axis = this.dataset.axis;
+            const isPlus = this.classList.contains('plus');
+            const inputId = `direct${axis.toUpperCase()}`;
+            const input = document.getElementById(inputId);
+            
+            if (input) {
+                let value = parseInt(input.value) || 0;
+                const step = 5; // Pas d'incrémentation
+                
+                if (isPlus) {
+                    value = Math.min(parseInt(input.max), value + step);
+                } else {
+                    value = Math.max(parseInt(input.min), value - step);
+                }
+                
+                input.value = value;
+                
+                // Animation du bouton
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+                
+                console.log(`Valeur ${axis.toUpperCase()} mise à jour:`, value);
+            }
+        });
+    });
+    
+    // Gestionnaire pour le bouton Exécuter
+    const executeBtn = document.getElementById('executeDirectPosition');
+    if (executeBtn) {
+        executeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const x = parseInt(document.getElementById('directX').value) || 0;
+            const y = parseInt(document.getElementById('directY').value) || 0;
+            const z = parseInt(document.getElementById('directZ').value) || 0;
+            
+            console.log('Exécution position directe:', { x, y, z });
+            
+            // Animation du bouton
+            this.style.transform = 'scale(0.95)';
+            this.textContent = 'Exécution...';
+            this.disabled = true;
+            
+            // Simuler le déplacement
+            setTimeout(() => {
+                // Mettre à jour les coordonnées affichées
+                updateNeedleCoordinates(x, y, z);
+                
+                // Déplacer visuellement l'aiguille dans la grille
+                updateNeedleVisualPosition(x, y);
+                
+                // Réinitialiser le bouton
+                this.style.transform = 'scale(1)';
+                this.textContent = 'Exécuter';
+                this.disabled = false;
+                
+                alert(`Position atteinte: X:${x}, Y:${y}, Z:${z}`);
+            }, 1500);
         });
     }
     
-    // Le joystick 2 (Z)
-    const joystick2 = document.getElementById('joystick2');
-    if (joystick2) {
-        // Flèches du joystick 2
-        const arrows = joystick2.querySelectorAll('.arrow');
-        arrows.forEach(arrow => {
-            arrow.addEventListener('mousedown', function() {
-                this.style.opacity = '0.5';
+    // Validation en temps réel des inputs
+    ['directX', 'directY', 'directZ'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', function() {
+                let value = parseInt(this.value);
+                const min = parseInt(this.min);
+                const max = parseInt(this.max);
                 
-                // Identifier la direction et mettre à jour les coordonnées
-                const direction = this.className.split('arrow-')[1];
-                updateJoystickZMovement(direction);
+                // Validation des limites
+                if (isNaN(value)) {
+                    this.value = min;
+                    return;
+                }
+                
+                if (value < min) {
+                    this.value = min;
+                    value = min;
+                }
+                if (value > max) {
+                    this.value = max;
+                    value = max;
+                }
+                
+                // Changement de couleur selon validation
+                if (value >= min && value <= max) {
+                    this.style.backgroundColor = '#f1f8e9';
+                    this.style.borderColor = '#4caf50';
+                } else {
+                    this.style.backgroundColor = '#ffebee';
+                    this.style.borderColor = '#e74c3c';
+                }
+                
+                console.log(`Input ${id} validé:`, value);
             });
             
-            arrow.addEventListener('mouseup', function() {
-                this.style.opacity = '1';
+            // Validation au focus lost
+            input.addEventListener('blur', function() {
+                const value = parseInt(this.value);
+                const min = parseInt(this.min);
+                const max = parseInt(this.max);
+                
+                if (isNaN(value) || value < min || value > max) {
+                    this.value = min;
+                    this.style.backgroundColor = '';
+                    this.style.borderColor = '';
+                }
             });
-            
-            arrow.addEventListener('mouseleave', function() {
-                this.style.opacity = '1';
-            });
-        });
+        }
+    });
+}
+
+// Fonction pour réinitialiser les inputs de position directe
+function resetDirectPositionInputs() {
+    document.getElementById('directX').value = 0;
+    document.getElementById('directY').value = 0;
+    document.getElementById('directZ').value = 0;
+    
+    // Réinitialiser les styles
+    ['directX', 'directY', 'directZ'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.style.backgroundColor = '';
+            input.style.borderColor = '';
+        }
+    });
+}
+
+// Fonction pour mettre à jour la position visuelle de l'aiguille dans la grille
+function updateNeedleVisualPosition(x, y) {
+    // Supprimer l'ancienne position de l'aiguille
+    const oldNeedle = document.querySelector('#mode1 .needle-indicator');
+    if (oldNeedle) {
+        oldNeedle.remove();
+    }
+    
+    // Calculer la position dans la grille (7x7)
+    // Conversion des coordonnées X,Y en position grille
+    let gridCol = Math.round((x + 100) / 200 * 6) + 1; // Colonnes A-G (1-7)
+    let gridRow = Math.round((y + 100) / 200 * 6) + 1; // Lignes 1-7
+    
+    // Limiter aux bornes de la grille
+    gridCol = Math.max(1, Math.min(7, gridCol));
+    gridRow = Math.max(1, Math.min(7, gridRow));
+    
+    // Trouver la cellule correspondante dans la grille
+    const mode1Page = document.getElementById('mode1');
+    const gridCells = mode1Page.querySelectorAll('.grid-cell:not(.grid-header)');
+    
+    // Calculer l'index de la cellule (grille 8x8 avec headers)
+    const cellIndex = (gridRow - 1) * 8 + gridCol;
+    
+    if (gridCells[cellIndex]) {
+        // Créer le nouvel indicateur d'aiguille
+        const needleIndicator = document.createElement('div');
+        needleIndicator.className = 'needle-indicator';
+        needleIndicator.innerHTML = '<div class="needle-circle"></div>';
+        
+        gridCells[cellIndex].appendChild(needleIndicator);
+        
+        console.log(`Aiguille déplacée vers la position grille: Ligne ${gridRow}, Colonne ${String.fromCharCode(64 + gridCol)}`);
     }
 }
 
@@ -364,17 +374,25 @@ function setupJoystickInteractions() {
 function updateJoystickMovement(direction) {
     console.log('Mouvement du joystick 1:', direction);
     
-    // Récupérer les coordonnées actuelles
-    const xElement = document.querySelector('#coordX span');
-    const yElement = document.querySelector('#coordY span');
+    // Récupérer les coordonnées actuelles (chercher dans la page mode1 spécifiquement)
+    const mode1Page = document.getElementById('mode1');
+    const xElement = mode1Page.querySelector('.coordinate:nth-child(1) span');
+    const yElement = mode1Page.querySelector('.coordinate:nth-child(2) span');
+    
+    if (!xElement || !yElement) {
+        console.error('Éléments de coordonnées non trouvés');
+        return;
+    }
     
     // Extraire les valeurs numériques (retirer le signe +/-)
-    let x = parseInt(xElement.textContent);
-    let y = parseInt(yElement.textContent);
+    let x = parseInt(xElement.textContent.replace(/[^-\d]/g, '')) || 0;
+    let y = parseInt(yElement.textContent.replace(/[^-\d]/g, '')) || 0;
+    
+    // Récupérer la vitesse
+    const speedSlider = document.getElementById('speedSlider');
+    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 10) : 5;
     
     // Mise à jour en fonction de la direction
-    const speed = parseInt(document.getElementById('speedSlider').value) / 10;
-    
     switch(direction) {
         case 'up':
             y += speed;
@@ -390,8 +408,17 @@ function updateJoystickMovement(direction) {
             break;
     }
     
+    // Limiter les valeurs (optionnel)
+    x = Math.max(-100, Math.min(100, x));
+    y = Math.max(-100, Math.min(100, y));
+    
     // Mettre à jour les coordonnées affichées
     updateNeedleCoordinates(x, y, null);
+    
+    // Mettre à jour la position visuelle
+    updateNeedleVisualPosition(x, y);
+    
+    console.log('Nouvelles coordonnées XY:', x, y);
 }
 
 // Fonction pour mettre à jour le mouvement Z en fonction du joystick 2
@@ -399,14 +426,22 @@ function updateJoystickZMovement(direction) {
     console.log('Mouvement du joystick 2:', direction);
     
     // Récupérer la coordonnée Z actuelle
-    const zElement = document.querySelector('#coordZ span');
+    const mode1Page = document.getElementById('mode1');
+    const zElement = mode1Page.querySelector('.coordinate:nth-child(3) span');
+    
+    if (!zElement) {
+        console.error('Élément de coordonnée Z non trouvé');
+        return;
+    }
     
     // Extraire la valeur numérique (retirer le signe +/-)
-    let z = parseInt(zElement.textContent);
+    let z = parseInt(zElement.textContent.replace(/[^-\d]/g, '')) || 0;
+    
+    // Récupérer la vitesse
+    const speedSlider = document.getElementById('speedSlider');
+    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 10) : 5;
     
     // Mise à jour en fonction de la direction
-    const speed = parseInt(document.getElementById('speedSlider').value) / 10;
-    
     switch(direction) {
         case 'up':
             z += speed;
@@ -416,44 +451,48 @@ function updateJoystickZMovement(direction) {
             break;
     }
     
+    // Limiter les valeurs (optionnel)
+    z = Math.max(-50, Math.min(50, z));
+    
     // Mettre à jour la coordonnée Z affichée
     updateNeedleCoordinates(null, null, z);
+    
+    console.log('Nouvelle coordonnée Z:', z);
 }
 
 // Fonction pour mettre à jour les coordonnées de l'aiguille
 function updateNeedleCoordinates(x, y, z) {
+    const mode1Page = document.getElementById('mode1');
+    if (!mode1Page) return;
+    
     // Mettre à jour X si fourni
     if (x !== null) {
-        const xElement = document.querySelector('#coordX span');
-        xElement.textContent = (x >= 0 ? '+' : '') + x;
-        xElement.className = x >= 0 ? 'positive' : 'negative';
+        const xElement = mode1Page.querySelector('.coordinate:nth-child(1) span');
+        if (xElement) {
+            xElement.textContent = (x >= 0 ? '+' : '') + x;
+            xElement.className = x >= 0 ? 'positive' : 'negative';
+        }
     }
     
     // Mettre à jour Y si fourni
     if (y !== null) {
-        const yElement = document.querySelector('#coordY span');
-        yElement.textContent = (y >= 0 ? '+' : '') + y;
-        yElement.className = y >= 0 ? 'positive' : 'negative';
+        const yElement = mode1Page.querySelector('.coordinate:nth-child(2) span');
+        if (yElement) {
+            yElement.textContent = (y >= 0 ? '+' : '') + y;
+            yElement.className = y >= 0 ? 'positive' : 'negative';
+        }
     }
     
     // Mettre à jour Z si fourni
     if (z !== null) {
-        const zElement = document.querySelector('#coordZ span');
-        zElement.textContent = (z >= 0 ? '+' : '') + z;
-        zElement.className = z >= 0 ? 'positive' : 'negative';
+        const zElement = mode1Page.querySelector('.coordinate:nth-child(3) span');
+        if (zElement) {
+            zElement.textContent = (z >= 0 ? '+' : '') + z;
+            zElement.className = z >= 0 ? 'positive' : 'negative';
+        }
     }
     
-    // À faire: Mettre à jour la position visuelle de l'aiguille dans la grille
-    // updateNeedleVisualization(x, y, z);
-}
-
-// Fonction pour mettre à jour la visualisation de l'aiguille (à implémenter)
-function updateNeedleVisualization(x, y, z) {
-    // Cette fonction déplacerait visuellement l'aiguille dans la grille
-    // en fonction des coordonnées
-    console.log('Mise à jour de la visualisation de l\'aiguille:', { x, y, z });
-    
-    // Implémentation à développer selon les besoins spécifiques
+    console.log('Coordonnées mises à jour - X:', x, 'Y:', y, 'Z:', z);
 }
 
 // Fonction pour nettoyer la page lors du changement de page
@@ -461,43 +500,32 @@ function cleanupMode1Page() {
     console.log('Nettoyage de la page Mode 1');
     
     // Supprimer les écouteurs d'événements pour éviter les fuites de mémoire
-    
-    // Réinitialiser les joysticks
-    const joystick1 = document.getElementById('joystick1');
-    if (joystick1) {
-        const arrows = joystick1.querySelectorAll('.arrow');
-        arrows.forEach(arrow => {
-            arrow.removeEventListener('mousedown', null);
-            arrow.removeEventListener('mouseup', null);
-            arrow.removeEventListener('mouseleave', null);
+    const mode1Page = document.getElementById('mode1');
+    if (mode1Page) {
+        // Nettoyer les joysticks
+        const joysticks = mode1Page.querySelectorAll('.joystick');
+        joysticks.forEach(joystick => {
+            const arrows = joystick.querySelectorAll('.arrow');
+            arrows.forEach(arrow => {
+                // Cloner l'élément pour supprimer tous les événements
+                const newArrow = arrow.cloneNode(true);
+                arrow.parentNode.replaceChild(newArrow, arrow);
+            });
         });
-    }
-    
-    const joystick2 = document.getElementById('joystick2');
-    if (joystick2) {
-        const arrows = joystick2.querySelectorAll('.arrow');
-        arrows.forEach(arrow => {
-            arrow.removeEventListener('mousedown', null);
-            arrow.removeEventListener('mouseup', null);
-            arrow.removeEventListener('mouseleave', null);
+        
+        // Nettoyer les boutons
+        const buttons = mode1Page.querySelectorAll('button');
+        buttons.forEach(button => {
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
         });
-    }
-    
-    // Réinitialiser le curseur de vitesse
-    const speedSlider = document.getElementById('speedSlider');
-    if (speedSlider) {
-        speedSlider.removeEventListener('input', null);
-    }
-    
-    // Réinitialiser les boutons d'action
-    const resetButton = document.getElementById('resetButton');
-    if (resetButton) {
-        resetButton.removeEventListener('click', null);
-    }
-    
-    const emergencyButton = document.getElementById('emergencyButton');
-    if (emergencyButton) {
-        emergencyButton.removeEventListener('click', null);
+        
+        // Nettoyer les inputs
+        const inputs = mode1Page.querySelectorAll('input');
+        inputs.forEach(input => {
+            const newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+        });
     }
 }
 
