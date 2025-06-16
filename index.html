@@ -36,7 +36,7 @@
                 <button class="btn" onclick="showPage('mode1')">Mode 1</button>
                 <button class="btn" onclick="showPage('mode2')">Mode 2</button>
                 <button class="btn danger" onclick="quitApp()">Quitter</button>
-                <div style="height: 40px;"></div>
+                <div style="height: 4vh;"></div>
                 <button class="btn" id="adminButton" onclick="showPage('admin')">Admin</button>
             </div>
             
@@ -78,18 +78,10 @@
                                         <div class="arrow arrow-left"></div>
                                         <div class="arrow arrow-right"></div>
                                     </div>
-                                    <div class="joystick" style="width: 80px;">
+                                    <div class="joystick joystick-small">
                                         <div class="arrow arrow-up"></div>
                                         <div class="arrow arrow-down"></div>
                                     </div>
-                                </div>
-                                <div class="connection-status">
-                                    <div class="status-label">Connexion CAN :</div>
-                                    <div class="status-indicator"></div>
-                                </div>
-                                <div class="slider-container">
-                                    <div class="slider-label">Vitesse</div>
-                                    <input type="range" min="0" max="100" value="50" class="slider" id="speedSlider">
                                 </div>
                             </div>
                             
@@ -127,7 +119,19 @@
                         </div>
                         
                         <!-- Panneau de droite: Visualisation -->
-                        <div class="panel">
+                        <div class="panel right-panel">
+                            <!-- Contrôles CAN et Vitesse au-dessus -->
+                            <div class="top-controls">
+                                <div class="connection-status">
+                                    <div class="status-label">Connexion CAN :</div>
+                                    <div class="status-indicator"></div>
+                                </div>
+                                <div class="slider-container">
+                                    <div class="slider-label">Vitesse</div>
+                                    <input type="range" min="0" max="100" value="50" class="slider" id="speedSlider">
+                                </div>
+                            </div>
+                            
                             <h3 class="panel-title">Visualisation de l'aiguille</h3>
                             <div class="visualization-grid">
                                 <!-- En-têtes -->
@@ -142,85 +146,85 @@
                                 
                                 <!-- Ligne 1 -->
                                 <div class="grid-cell grid-header">1</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="A1" data-x="-15" data-y="15"></div>
+                                <div class="grid-cell" data-pos="B1" data-x="-10" data-y="15"></div>
+                                <div class="grid-cell" data-pos="C1" data-x="-5" data-y="15"></div>
+                                <div class="grid-cell" data-pos="D1" data-x="0" data-y="15"></div>
+                                <div class="grid-cell" data-pos="E1" data-x="5" data-y="15"></div>
+                                <div class="grid-cell" data-pos="F1" data-x="10" data-y="15"></div>
+                                <div class="grid-cell" data-pos="G1" data-x="15" data-y="15"></div>
                                 
                                 <!-- Ligne 2 -->
                                 <div class="grid-cell grid-header">2</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="A2" data-x="-15" data-y="10"></div>
+                                <div class="grid-cell" data-pos="B2" data-x="-10" data-y="10"></div>
+                                <div class="grid-cell" data-pos="C2" data-x="-5" data-y="10"></div>
+                                <div class="grid-cell" data-pos="D2" data-x="0" data-y="10"></div>
+                                <div class="grid-cell" data-pos="E2" data-x="5" data-y="10"></div>
+                                <div class="grid-cell" data-pos="F2" data-x="10" data-y="10"></div>
+                                <div class="grid-cell" data-pos="G2" data-x="15" data-y="10"></div>
                                 
                                 <!-- Ligne 3 -->
                                 <div class="grid-cell grid-header">3</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="A3" data-x="-15" data-y="5"></div>
+                                <div class="grid-cell" data-pos="B3" data-x="-10" data-y="5"></div>
+                                <div class="grid-cell" data-pos="C3" data-x="-5" data-y="5"></div>
+                                <div class="grid-cell" data-pos="D3" data-x="0" data-y="5"></div>
+                                <div class="grid-cell" data-pos="E3" data-x="5" data-y="5"></div>
+                                <div class="grid-cell" data-pos="F3" data-x="10" data-y="5"></div>
+                                <div class="grid-cell" data-pos="G3" data-x="15" data-y="5"></div>
                                 
                                 <!-- Ligne 4 -->
                                 <div class="grid-cell grid-header">4</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                
-                                <!-- Ligne 5 -->
-                                <div class="grid-cell grid-header">5</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell" id="needlePosition">
+                                <div class="grid-cell" data-pos="A4" data-x="-15" data-y="0"></div>
+                                <div class="grid-cell" data-pos="B4" data-x="-10" data-y="0"></div>
+                                <div class="grid-cell" data-pos="C4" data-x="-5" data-y="0"></div>
+                                <div class="grid-cell" data-pos="D4" data-x="0" data-y="0" id="centerPosition">
                                     <div class="needle-indicator">
                                         <div class="needle-circle"></div>
                                     </div>
                                 </div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="E4" data-x="5" data-y="0"></div>
+                                <div class="grid-cell" data-pos="F4" data-x="10" data-y="0"></div>
+                                <div class="grid-cell" data-pos="G4" data-x="15" data-y="0"></div>
+                                
+                                <!-- Ligne 5 -->
+                                <div class="grid-cell grid-header">5</div>
+                                <div class="grid-cell" data-pos="A5" data-x="-15" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="B5" data-x="-10" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="C5" data-x="-5" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="D5" data-x="0" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="E5" data-x="5" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="F5" data-x="10" data-y="-5"></div>
+                                <div class="grid-cell" data-pos="G5" data-x="15" data-y="-5"></div>
                                 
                                 <!-- Ligne 6 -->
                                 <div class="grid-cell grid-header">6</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="A6" data-x="-15" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="B6" data-x="-10" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="C6" data-x="-5" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="D6" data-x="0" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="E6" data-x="5" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="F6" data-x="10" data-y="-10"></div>
+                                <div class="grid-cell" data-pos="G6" data-x="15" data-y="-10"></div>
                                 
                                 <!-- Ligne 7 -->
                                 <div class="grid-cell grid-header">7</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
+                                <div class="grid-cell" data-pos="A7" data-x="-15" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="B7" data-x="-10" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="C7" data-x="-5" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="D7" data-x="0" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="E7" data-x="5" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="F7" data-x="10" data-y="-15"></div>
+                                <div class="grid-cell" data-pos="G7" data-x="15" data-y="-15"></div>
                             </div>
                             
                             <div class="coordinates">
                                 <div class="coordinate">
-                                    X: <span class="positive">+28</span>
+                                    X: <span class="neutral">0</span>
                                 </div>
                                 <div class="coordinate">
-                                    Y: <span class="negative">-16</span>
+                                    Y: <span class="neutral">0</span>
                                 </div>
                                 <div class="coordinate">
                                     Z: <span class="positive">+5</span>
@@ -246,7 +250,7 @@
                                     <div class="arrow arrow-left"></div>
                                     <div class="arrow arrow-right"></div>
                                 </div>
-                                <div class="joystick" style="width: 80px;" id="joystick2Mode2">
+                                <div class="joystick joystick-small" id="joystick2Mode2">
                                     <div class="arrow arrow-up"></div>
                                     <div class="arrow arrow-down"></div>
                                 </div>
@@ -427,3 +431,4 @@
 
 </body>
 </html>
+
