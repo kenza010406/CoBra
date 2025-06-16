@@ -66,76 +66,147 @@
                 <!-- Mode 1 Page -->
                 <div id="mode1" class="page" style="display: none;">
                     <div class="control-panel">
-                        <div class="panel">
-                            <h3 class="panel-title">Contrôle Joystick</h3>
-                            <div class="joystick-container">
-                                <div class="joystick">
-                                    <div class="arrow arrow-up"></div>
-                                    <div class="arrow arrow-down"></div>
-                                    <div class="arrow arrow-left"></div>
-                                    <div class="arrow arrow-right"></div>
+                        <!-- Panneau de gauche: Contrôles -->
+                        <div class="left-panel">
+                            <!-- Contrôle Joystick -->
+                            <div class="panel">
+                                <h3 class="panel-title">Contrôle Manuel : Contrôle Joystick</h3>
+                                <div class="joystick-container">
+                                    <div class="joystick">
+                                        <div class="arrow arrow-up"></div>
+                                        <div class="arrow arrow-down"></div>
+                                        <div class="arrow arrow-left"></div>
+                                        <div class="arrow arrow-right"></div>
+                                    </div>
+                                    <div class="joystick" style="width: 80px;">
+                                        <div class="arrow arrow-up"></div>
+                                        <div class="arrow arrow-down"></div>
+                                    </div>
                                 </div>
-                                <div class="joystick" style="width: 80px;">
-                                    <div class="arrow arrow-up"></div>
-                                    <div class="arrow arrow-down"></div>
+                                <div class="connection-status">
+                                    <div class="status-label">Connexion CAN :</div>
+                                    <div class="status-indicator"></div>
+                                </div>
+                                <div class="slider-container">
+                                    <div class="slider-label">Vitesse</div>
+                                    <input type="range" min="0" max="100" value="50" class="slider" id="speedSlider">
                                 </div>
                             </div>
-                            <div class="slider-container">
-                                <div class="slider-label">Vitesse</div>
-                                <input type="range" min="0" max="100" value="50" class="slider" id="speedSlider">
-                            </div>
-                            <div class="connection-status">
-                                <div class="status-label">Connexion CAN :</div>
-                                <div class="status-indicator"></div>
+                            
+                            <!-- Commande en position -->
+                            <div class="panel">
+                                <h3 class="panel-title">Commande en position : Directe</h3>
+                                
+                                <div class="direct-position-controls">
+                                    <div class="coordinate-control">
+                                        <label>X:</label>
+                                        <button class="coord-btn minus" data-axis="x">-</button>
+                                        <input type="number" id="directX" class="coord-input" value="-50" min="-100" max="100">
+                                        <button class="coord-btn plus" data-axis="x">+</button>
+                                    </div>
+                                    
+                                    <div class="coordinate-control">
+                                        <label>Y:</label>
+                                        <button class="coord-btn minus" data-axis="y">-</button>
+                                        <input type="number" id="directY" class="coord-input" value="-50" min="-100" max="100">
+                                        <button class="coord-btn plus" data-axis="y">+</button>
+                                    </div>
+                                    
+                                    <div class="coordinate-control">
+                                        <label>Z:</label>
+                                        <button class="coord-btn minus" data-axis="z">-</button>
+                                        <input type="number" id="directZ" class="coord-input" value="-50" min="-50" max="50">
+                                        <button class="coord-btn plus" data-axis="z">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="execute-button-container">
+                                    <button class="execute-btn" id="executeDirectPosition">Exécuter</button>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- Panneau de droite: Visualisation -->
                         <div class="panel">
                             <h3 class="panel-title">Visualisation de l'aiguille</h3>
                             <div class="visualization-grid">
+                                <!-- En-têtes -->
                                 <div class="grid-cell grid-header"></div>
-                                <div class="grid-cell grid-header">1</div>
-                                <div class="grid-cell grid-header">2</div>
-                                <div class="grid-cell grid-header">3</div>
-                                <div class="grid-cell grid-header">4</div>
-                                <div class="grid-cell grid-header">5</div>
-                                <div class="grid-cell grid-header">6</div>
                                 <div class="grid-cell grid-header">A</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
                                 <div class="grid-cell grid-header">B</div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell" id="targetCell">
-                                    <div style="width: 15px; height: 15px; border: 2px dashed #e74c3c; border-radius: 50%;"></div>
-                                </div>
-                                <div class="grid-cell"></div>
-                                <div class="grid-cell"></div>
                                 <div class="grid-cell grid-header">C</div>
+                                <div class="grid-cell grid-header">D</div>
+                                <div class="grid-cell grid-header">E</div>
+                                <div class="grid-cell grid-header">F</div>
+                                <div class="grid-cell grid-header">G</div>
+                                
+                                <!-- Ligne 1 -->
+                                <div class="grid-cell grid-header">1</div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
-                                <div class="grid-cell" id="needleCell">
-                                    <div style="position: relative;">
-                                        <div style="width: 10px; height: 10px; background-color: #4caf50; border-radius: 50%;">
-                                        </div>
-                                        <div style="width: 2px; height: 30px; background-color: #4caf50; position: absolute; bottom: 0; left: 4px; transform: rotate(45deg); transform-origin: bottom;"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                
+                                <!-- Ligne 2 -->
+                                <div class="grid-cell grid-header">2</div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                
+                                <!-- Ligne 3 -->
+                                <div class="grid-cell grid-header">3</div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                
+                                <!-- Ligne 4 -->
+                                <div class="grid-cell grid-header">4</div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                
+                                <!-- Ligne 5 -->
+                                <div class="grid-cell grid-header">5</div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell"></div>
+                                <div class="grid-cell" id="needlePosition">
+                                    <div class="needle-indicator">
+                                        <div class="needle-circle"></div>
                                     </div>
                                 </div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
-                                <div class="grid-cell grid-header">D</div>
+                                
+                                <!-- Ligne 6 -->
+                                <div class="grid-cell grid-header">6</div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
-                                <div class="grid-cell grid-header">E</div>
+                                <div class="grid-cell"></div>
+                                
+                                <!-- Ligne 7 -->
+                                <div class="grid-cell grid-header">7</div>
+                                <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
@@ -143,6 +214,7 @@
                                 <div class="grid-cell"></div>
                                 <div class="grid-cell"></div>
                             </div>
+                            
                             <div class="coordinates">
                                 <div class="coordinate">
                                     X: <span class="positive">+28</span>
