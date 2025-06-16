@@ -1,16 +1,38 @@
-// page3.js - Mode 1 (VERSION CORRIGÉE AVEC MODE DIRECT)
-// Gestion de la page Mode 1 du système CoBra (contrôle grille de coordonnées + mode direct)
+// page3.js - Mode 1 (VERSION COMPLÈTE FINALE)
+// Gestion de la page Mode 1 du système CoBra avec système de coordonnées correct
+
+// Système de coordonnées de la grille (D4 = origine 0,0)
+const GRID_COORDINATES = {
+    'A1': { x: -15, y: 15 }, 'B1': { x: -10, y: 15 }, 'C1': { x: -5, y: 15 }, 'D1': { x: 0, y: 15 }, 'E1': { x: 5, y: 15 }, 'F1': { x: 10, y: 15 }, 'G1': { x: 15, y: 15 },
+    'A2': { x: -15, y: 10 }, 'B2': { x: -10, y: 10 }, 'C2': { x: -5, y: 10 }, 'D2': { x: 0, y: 10 }, 'E2': { x: 5, y: 10 }, 'F2': { x: 10, y: 10 }, 'G2': { x: 15, y: 10 },
+    'A3': { x: -15, y: 5 },  'B3': { x: -10, y: 5 },  'C3': { x: -5, y: 5 },  'D3': { x: 0, y: 5 },  'E3': { x: 5, y: 5 },  'F3': { x: 10, y: 5 },  'G3': { x: 15, y: 5 },
+    'A4': { x: -15, y: 0 },  'B4': { x: -10, y: 0 },  'C4': { x: -5, y: 0 },  'D4': { x: 0, y: 0 },   'E4': { x: 5, y: 0 },   'F4': { x: 10, y: 0 },  'G4': { x: 15, y: 0 },
+    'A5': { x: -15, y: -5 }, 'B5': { x: -10, y: -5 }, 'C5': { x: -5, y: -5 }, 'D5': { x: 0, y: -5 },  'E5': { x: 5, y: -5 },  'F5': { x: 10, y: -5 }, 'G5': { x: 15, y: -5 },
+    'A6': { x: -15, y: -10 },'B6': { x: -10, y: -10 },'C6': { x: -5, y: -10 },'D6': { x: 0, y: -10 }, 'E6': { x: 5, y: -10 }, 'F6': { x: 10, y: -10 },'G6': { x: 15, y: -10 },
+    'A7': { x: -15, y: -15 },'B7': { x: -10, y: -15 },'C7': { x: -5, y: -15 },'D7': { x: 0, y: -15 }, 'E7': { x: 5, y: -15 }, 'F7': { x: 10, y: -15 },'G7': { x: 15, y: -15 }
+};
+
+// Position actuelle de l'aiguille
+let currentPosition = { x: 0, y: 0, z: 5 };
 
 // Fonction d'initialisation de la page Mode 1
 function initMode1Page() {
-    console.log('Initialisation de la page Mode 1 (version corrigée avec mode direct)');
+    console.log('Initialisation de la page Mode 1 (version complète finale)');
     
-    // Ne pas créer de nouveaux éléments, utiliser ceux qui existent déjà dans le HTML
+    // Initialiser la position par défaut à D4 (0,0)
+    currentPosition = { x: 0, y: 0, z: 5 };
+    
     // Enregistrer directement les gestionnaires d'événements sur les éléments existants
     setupMode1EventListeners();
     
     // Initialiser les curseurs existants
     initializeSliders();
+    
+    // Initialiser l'affichage des coordonnées
+    updateNeedleCoordinates(0, 0, 5);
+    
+    // Positionner l'aiguille sur D4 au démarrage
+    positionNeedleOnGrid('D4');
     
     return document.getElementById('mode1');
 }
@@ -48,14 +70,15 @@ function setupMode1EventListeners() {
         resetButton.addEventListener('click', function() {
             console.log('Réinitialisation du système');
             
-            // Réinitialiser les coordonnées
-            updateNeedleCoordinates(0, 0, 0);
+            // Réinitialiser à la position D4 (origine)
+            currentPosition = { x: 0, y: 0, z: 5 };
+            updateNeedleCoordinates(0, 0, 5);
+            positionNeedleOnGrid('D4');
             
             // Réinitialiser les valeurs de mode direct
             resetDirectPositionInputs();
             
-            // Afficher une notification
-            alert('Système réinitialisé avec succès.');
+            alert('Système réinitialisé à la position D4 (origine).');
         });
     }
     
@@ -72,6 +95,100 @@ function setupMode1EventListeners() {
     
     // Configuration des contrôles de position directe
     setupDirectPositionControls();
+    
+    // Configuration du clic sur les cellules de la grille
+    setupGridClickHandlers();
+}
+
+// Fonction pour configurer les clics sur la grille
+function setupGridClickHandlers() {
+    const mode1Page = document.getElementById('mode1');
+    const gridCells = mode1Page.querySelectorAll('.grid-cell[data-pos]');
+    
+    gridCells.forEach(cell => {
+        cell.addEventListener('click', function() {
+            const position = this.dataset.pos;
+            const x = parseInt(this.dataset.x);
+            const y = parseInt(this.dataset.y);
+            
+            // Mettre à jour la position actuelle
+            currentPosition.x = x;
+            currentPosition.y = y;
+            
+            // Mettre à jour l'affichage
+            updateNeedleCoordinates(x, y, currentPosition.z);
+            positionNeedleOnGrid(position);
+            
+            // Mettre à jour les inputs du mode direct
+            document.getElementById('directX').value = x;
+            document.getElementById('directY').value = y;
+            
+            console.log(`Position sélectionnée: ${position} (${x}, ${y})`);
+        });
+    });
+}
+
+// Fonction pour positionner l'aiguille sur la grille
+function positionNeedleOnGrid(gridPosition) {
+    // Supprimer l'ancienne position de l'aiguille
+    const oldNeedles = document.querySelectorAll('#mode1 .needle-indicator');
+    oldNeedles.forEach(needle => {
+        if (needle.parentElement.id !== 'centerPosition') {
+            needle.remove();
+        }
+    });
+    
+    // Trouver la cellule correspondante
+    const mode1Page = document.getElementById('mode1');
+    const targetCell = mode1Page.querySelector(`[data-pos="${gridPosition}"]`);
+    
+    if (targetCell) {
+        // Si ce n'est pas la position D4, créer un nouvel indicateur
+        if (gridPosition !== 'D4') {
+            // Masquer l'indicateur de D4 si présent
+            const d4Cell = document.getElementById('centerPosition');
+            if (d4Cell) {
+                const d4Needle = d4Cell.querySelector('.needle-indicator');
+                if (d4Needle) {
+                    d4Needle.style.display = 'none';
+                }
+            }
+            
+            // Créer le nouvel indicateur d'aiguille
+            const needleIndicator = document.createElement('div');
+            needleIndicator.className = 'needle-indicator';
+            needleIndicator.innerHTML = '<div class="needle-circle"></div>';
+            
+            targetCell.appendChild(needleIndicator);
+        } else {
+            // Réafficher l'indicateur de D4
+            const d4Cell = document.getElementById('centerPosition');
+            if (d4Cell) {
+                const d4Needle = d4Cell.querySelector('.needle-indicator');
+                if (d4Needle) {
+                    d4Needle.style.display = 'block';
+                }
+            }
+        }
+        
+        console.log(`Aiguille positionnée sur ${gridPosition}`);
+    }
+}
+
+// Fonction pour trouver la position grille la plus proche
+function findClosestGridPosition(x, y) {
+    let closestPosition = 'D4';
+    let minDistance = Infinity;
+    
+    for (const [position, coords] of Object.entries(GRID_COORDINATES)) {
+        const distance = Math.sqrt(Math.pow(x - coords.x, 2) + Math.pow(y - coords.y, 2));
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestPosition = position;
+        }
+    }
+    
+    return closestPosition;
 }
 
 // Fonction pour configurer l'interactivité des joysticks
@@ -92,8 +209,6 @@ function setupJoystickInteractions() {
         const joystick1 = joysticks[0]; // Premier joystick (XY)
         const joystick2 = joysticks[1]; // Deuxième joystick (Z)
         
-        console.log('Joysticks trouvés:', joystick1, joystick2);
-        
         // Configuration du joystick 1 (XY)
         const arrows1 = joystick1.querySelectorAll('.arrow');
         arrows1.forEach(arrow => {
@@ -101,7 +216,6 @@ function setupJoystickInteractions() {
                 e.preventDefault();
                 this.style.opacity = '0.5';
                 
-                // Identifier la direction
                 let direction = '';
                 if (this.classList.contains('arrow-up')) direction = 'up';
                 else if (this.classList.contains('arrow-down')) direction = 'down';
@@ -150,7 +264,6 @@ function setupJoystickInteractions() {
                 e.preventDefault();
                 this.style.opacity = '0.5';
                 
-                // Identifier la direction
                 let direction = '';
                 if (this.classList.contains('arrow-up')) direction = 'up';
                 else if (this.classList.contains('arrow-down')) direction = 'down';
@@ -250,18 +363,22 @@ function setupDirectPositionControls() {
             
             // Simuler le déplacement
             setTimeout(() => {
+                // Mettre à jour la position actuelle
+                currentPosition = { x, y, z };
+                
                 // Mettre à jour les coordonnées affichées
                 updateNeedleCoordinates(x, y, z);
                 
-                // Déplacer visuellement l'aiguille dans la grille
-                updateNeedleVisualPosition(x, y);
+                // Trouver et positionner sur la grille
+                const closestPosition = findClosestGridPosition(x, y);
+                positionNeedleOnGrid(closestPosition);
                 
                 // Réinitialiser le bouton
                 this.style.transform = 'scale(1)';
                 this.textContent = 'Exécuter';
                 this.disabled = false;
                 
-                alert(`Position atteinte: X:${x}, Y:${y}, Z:${z}`);
+                alert(`Position atteinte: ${closestPosition} (X:${x}, Y:${y}, Z:${z})`);
             }, 1500);
         });
     }
@@ -322,7 +439,7 @@ function setupDirectPositionControls() {
 function resetDirectPositionInputs() {
     document.getElementById('directX').value = 0;
     document.getElementById('directY').value = 0;
-    document.getElementById('directZ').value = 0;
+    document.getElementById('directZ').value = 5;
     
     // Réinitialiser les styles
     ['directX', 'directY', 'directZ'].forEach(id => {
@@ -334,130 +451,76 @@ function resetDirectPositionInputs() {
     });
 }
 
-// Fonction pour mettre à jour la position visuelle de l'aiguille dans la grille
-function updateNeedleVisualPosition(x, y) {
-    // Supprimer l'ancienne position de l'aiguille
-    const oldNeedle = document.querySelector('#mode1 .needle-indicator');
-    if (oldNeedle) {
-        oldNeedle.remove();
-    }
-    
-    // Calculer la position dans la grille (7x7)
-    // Conversion des coordonnées X,Y en position grille
-    let gridCol = Math.round((x + 100) / 200 * 6) + 1; // Colonnes A-G (1-7)
-    let gridRow = Math.round((y + 100) / 200 * 6) + 1; // Lignes 1-7
-    
-    // Limiter aux bornes de la grille
-    gridCol = Math.max(1, Math.min(7, gridCol));
-    gridRow = Math.max(1, Math.min(7, gridRow));
-    
-    // Trouver la cellule correspondante dans la grille
-    const mode1Page = document.getElementById('mode1');
-    const gridCells = mode1Page.querySelectorAll('.grid-cell:not(.grid-header)');
-    
-    // Calculer l'index de la cellule (grille 8x8 avec headers)
-    const cellIndex = (gridRow - 1) * 8 + gridCol;
-    
-    if (gridCells[cellIndex]) {
-        // Créer le nouvel indicateur d'aiguille
-        const needleIndicator = document.createElement('div');
-        needleIndicator.className = 'needle-indicator';
-        needleIndicator.innerHTML = '<div class="needle-circle"></div>';
-        
-        gridCells[cellIndex].appendChild(needleIndicator);
-        
-        console.log(`Aiguille déplacée vers la position grille: Ligne ${gridRow}, Colonne ${String.fromCharCode(64 + gridCol)}`);
-    }
-}
-
 // Fonction pour mettre à jour le mouvement XY en fonction du joystick 1
 function updateJoystickMovement(direction) {
     console.log('Mouvement du joystick 1:', direction);
     
-    // Récupérer les coordonnées actuelles (chercher dans la page mode1 spécifiquement)
-    const mode1Page = document.getElementById('mode1');
-    const xElement = mode1Page.querySelector('.coordinate:nth-child(1) span');
-    const yElement = mode1Page.querySelector('.coordinate:nth-child(2) span');
-    
-    if (!xElement || !yElement) {
-        console.error('Éléments de coordonnées non trouvés');
-        return;
-    }
-    
-    // Extraire les valeurs numériques (retirer le signe +/-)
-    let x = parseInt(xElement.textContent.replace(/[^-\d]/g, '')) || 0;
-    let y = parseInt(yElement.textContent.replace(/[^-\d]/g, '')) || 0;
-    
     // Récupérer la vitesse
     const speedSlider = document.getElementById('speedSlider');
-    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 10) : 5;
+    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 20) : 2.5;
     
     // Mise à jour en fonction de la direction
     switch(direction) {
         case 'up':
-            y += speed;
+            currentPosition.y += speed;
             break;
         case 'down':
-            y -= speed;
+            currentPosition.y -= speed;
             break;
         case 'left':
-            x -= speed;
+            currentPosition.x -= speed;
             break;
         case 'right':
-            x += speed;
+            currentPosition.x += speed;
             break;
     }
     
-    // Limiter les valeurs (optionnel)
-    x = Math.max(-100, Math.min(100, x));
-    y = Math.max(-100, Math.min(100, y));
+    // Limiter les valeurs
+    currentPosition.x = Math.max(-15, Math.min(15, currentPosition.x));
+    currentPosition.y = Math.max(-15, Math.min(15, currentPosition.y));
     
     // Mettre à jour les coordonnées affichées
-    updateNeedleCoordinates(x, y, null);
+    updateNeedleCoordinates(Math.round(currentPosition.x), Math.round(currentPosition.y), null);
     
-    // Mettre à jour la position visuelle
-    updateNeedleVisualPosition(x, y);
+    // Trouver et positionner sur la grille
+    const closestPosition = findClosestGridPosition(currentPosition.x, currentPosition.y);
+    positionNeedleOnGrid(closestPosition);
     
-    console.log('Nouvelles coordonnées XY:', x, y);
+    // Mettre à jour les inputs du mode direct
+    document.getElementById('directX').value = Math.round(currentPosition.x);
+    document.getElementById('directY').value = Math.round(currentPosition.y);
+    
+    console.log('Nouvelles coordonnées XY:', Math.round(currentPosition.x), Math.round(currentPosition.y));
 }
 
 // Fonction pour mettre à jour le mouvement Z en fonction du joystick 2
 function updateJoystickZMovement(direction) {
     console.log('Mouvement du joystick 2:', direction);
     
-    // Récupérer la coordonnée Z actuelle
-    const mode1Page = document.getElementById('mode1');
-    const zElement = mode1Page.querySelector('.coordinate:nth-child(3) span');
-    
-    if (!zElement) {
-        console.error('Élément de coordonnée Z non trouvé');
-        return;
-    }
-    
-    // Extraire la valeur numérique (retirer le signe +/-)
-    let z = parseInt(zElement.textContent.replace(/[^-\d]/g, '')) || 0;
-    
     // Récupérer la vitesse
     const speedSlider = document.getElementById('speedSlider');
-    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 10) : 5;
+    const speed = speedSlider ? Math.max(1, parseInt(speedSlider.value) / 20) : 2.5;
     
     // Mise à jour en fonction de la direction
     switch(direction) {
         case 'up':
-            z += speed;
+            currentPosition.z += speed;
             break;
         case 'down':
-            z -= speed;
+            currentPosition.z -= speed;
             break;
     }
     
-    // Limiter les valeurs (optionnel)
-    z = Math.max(-50, Math.min(50, z));
+    // Limiter les valeurs
+    currentPosition.z = Math.max(-50, Math.min(50, currentPosition.z));
     
     // Mettre à jour la coordonnée Z affichée
-    updateNeedleCoordinates(null, null, z);
+    updateNeedleCoordinates(null, null, Math.round(currentPosition.z));
     
-    console.log('Nouvelle coordonnée Z:', z);
+    // Mettre à jour l'input du mode direct
+    document.getElementById('directZ').value = Math.round(currentPosition.z);
+    
+    console.log('Nouvelle coordonnée Z:', Math.round(currentPosition.z));
 }
 
 // Fonction pour mettre à jour les coordonnées de l'aiguille
@@ -470,8 +533,11 @@ function updateNeedleCoordinates(x, y, z) {
         const xElement = mode1Page.querySelector('.coordinate:nth-child(1) span');
         if (xElement) {
             xElement.textContent = (x >= 0 ? '+' : '') + x;
-            xElement.className = x >= 0 ? 'positive' : 'negative';
+            if (x > 0) xElement.className = 'positive';
+            else if (x < 0) xElement.className = 'negative';
+            else xElement.className = 'neutral';
         }
+        currentPosition.x = x;
     }
     
     // Mettre à jour Y si fourni
@@ -479,8 +545,11 @@ function updateNeedleCoordinates(x, y, z) {
         const yElement = mode1Page.querySelector('.coordinate:nth-child(2) span');
         if (yElement) {
             yElement.textContent = (y >= 0 ? '+' : '') + y;
-            yElement.className = y >= 0 ? 'positive' : 'negative';
+            if (y > 0) yElement.className = 'positive';
+            else if (y < 0) yElement.className = 'negative';
+            else yElement.className = 'neutral';
         }
+        currentPosition.y = y;
     }
     
     // Mettre à jour Z si fourni
@@ -488,11 +557,14 @@ function updateNeedleCoordinates(x, y, z) {
         const zElement = mode1Page.querySelector('.coordinate:nth-child(3) span');
         if (zElement) {
             zElement.textContent = (z >= 0 ? '+' : '') + z;
-            zElement.className = z >= 0 ? 'positive' : 'negative';
+            if (z > 0) zElement.className = 'positive';
+            else if (z < 0) zElement.className = 'negative';
+            else zElement.className = 'neutral';
         }
+        currentPosition.z = z;
     }
     
-    console.log('Coordonnées mises à jour - X:', x, 'Y:', y, 'Z:', z);
+    console.log('Coordonnées mises à jour - X:', currentPosition.x, 'Y:', currentPosition.y, 'Z:', currentPosition.z);
 }
 
 // Fonction pour nettoyer la page lors du changement de page
@@ -507,7 +579,6 @@ function cleanupMode1Page() {
         joysticks.forEach(joystick => {
             const arrows = joystick.querySelectorAll('.arrow');
             arrows.forEach(arrow => {
-                // Cloner l'élément pour supprimer tous les événements
                 const newArrow = arrow.cloneNode(true);
                 arrow.parentNode.replaceChild(newArrow, arrow);
             });
@@ -525,6 +596,13 @@ function cleanupMode1Page() {
         inputs.forEach(input => {
             const newInput = input.cloneNode(true);
             input.parentNode.replaceChild(newInput, input);
+        });
+        
+        // Nettoyer les cellules de grille
+        const gridCells = mode1Page.querySelectorAll('.grid-cell[data-pos]');
+        gridCells.forEach(cell => {
+            const newCell = cell.cloneNode(true);
+            cell.parentNode.replaceChild(newCell, cell);
         });
     }
 }
