@@ -1,0 +1,3 @@
+bool can_connected
+string current_mode
+bool emergency_active
