@@ -1,0 +1,261 @@
+A-Telecharger RO2 , PYTHON ET ÉTABLIR LA CONNEXION ENTRE  RPI 4 ET RPI5 
+Bash :
+
+ip a
+hostname -I
+locale
+sudo apt update && sudo apt install locales
+sudo rm /var/lib/apt/lists/lock
+sudo rm /var/cache/apt/archives/lock
+sudo rm /var/lib/dpkg/lock*
+sudo dpkg --configure -a
+sudo apt update
+sudo apt update && sudo apt install locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+locale
+sudo apt install software-properties-common
+sudo add-apt-repository universe
+sudo apt update && sudo apt install curl -y
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+sudo apt update
+sudo apt upgrade
+sudo apt install ros-humble-desktop
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_cpp talker
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_py listener
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_cpp talker
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_py listener
+nano ~/bash
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_cpp talker
+source /opt/ros/humble/setup.bash
+ros2 run demo_nodes_py listener
+sudo apt get update
+sudo apt install tilix
+printenv | grep -i ROS
+mkdir -p ~/Documents/python_
+cd ~/Documents/python_
+python3 --version
+sudo apt get update
+ping 192.68.137.112
+cd ~/Documents/python_
+sudo apt-get update
+sudo apt-get install python3
+sudo apt-get install python3-pip
+pip3 --version
+ip a
+ip route | grep default
+iwconfig wlan0 | grep ESSID
+sudo nano /etc/netplan/50-cloud-init.yaml
+ip route | grep default
+iwconfig wlan0 | grep ESSID
+sudo nano /etc/netplan/50-cloud-init.yaml
+source ~/.bashrc
+sudo nano /etc/netplan/50-cloud-init.yaml
+sudo netplan apply
+erreur 
+sudo chmod 600 /etc/netplan/50-cloud-init.yaml
+sudo chmod 600 /etc/netplan/01-network-manager-all.yaml
+sudo netplan apply
+erreur corrigé 
+ip addr show wlan0
+ping 192.168.137.148 -c 4
+ping 192.168.137.148 -c 6
+sudo apt install traceroute
+traceroute 192.168.137.148
+sudo nano /etc/netplan/50-cloud-init.yaml
+sudo ufw status 
+sudo ufw enable
+allow connexion only with raceberry jazzy 
+sudo ufw allow from 192.168.137.148
+sudo ufw status
+nano ~/.bashrc 
+sudo nano /etc/netplan/50-cloud-init.yaml
+envoyer et lire les messages : humble (RPI 4) a jazzy(RPI5) 
+ros2 topic pub /test_topic std_msgs/String "{data: 'Hello from Humble'}
+ros2 topic echo /test_topic
+
+
+
+
+B-IMPLEMETER L’INTERFACE cObRA SUR RPI4 
+1-Crere les package ROS2 pour projet : 
+# Créer un espace de travail dédié au projet CoBra : 
+mkdir -p ~/cobra_ws/src
+cd ~/cobra_ws/src
+# Créer les packages nécessaires :
+ros2 pkg create --build-type ament_cmake --dependencies rclcpp std_msgs geometry_msgs --node-name cobra_controller cobra_control
+C-Définir les messages personnalisés pour votre interface
+1- NeedlePosition.msg
+nano ~/cobra_ws/src/cobra_msgs/msg/NeedlePosition.msg
+float32 x 
+float32 y 
+float32 z 
+float32 orientation
+2-et MotorStatus.msg:
+nano ~/cobra_ws/src/cobra_msgs/msg/MotorStatus.msg
+bool connected 
+int32[] motor_ids 
+bool[] calibrated 
+float32[] temperatures 
+string[] error_messages
+
+3-System status 
+nano ~/cobra_ws/src/cobra_msgs/msg/SystemStatus.msg
+bool can_connected
+string current_mode
+bool emergency_active
+
+4-package.xml
+nano ~/cobra_ws/src/cobra_msgs/package.xml
+<build_depend>rosidl_default_generators</build_depend>
+<exec_depend>rosidl_default_runtime</exec_depend>
+<member_of_group>rosidl_interface_packages</member_of_group>
+#avant </package>
+
+5-CMakeLists.txt
+nano ~/cobra_ws/src/cobra_msgs/CMakeLists.txt
+find_package(rosidl_default_generators REQUIRED)
+rosidl_generate_interfaces(${PROJECT_NAME}
+"msg/NeedlePosition.msg"
+"msg/MotorStatus.msg"
+"msg/SystemStatus.msg"
+)
+#avant ament_package()
+D-Installer ROSBRIDGE POUR CONNECTER l'interface JavaScript à ROS2
+sudo apt update
+sudo apt install ros-humble-rosbridge-suite
+E-Créer le nœud principal pour gérer l'interface
+cd ~/cobra_ws/src/cobra_control
+mkdir -p cobra_control
+touch cobra_control/ui_controller.py
+chmod +x cobra_control/ui_controller.py
+nano cobra_control/ui_controller.py
+
+
+
+
+
+
+
+
+
+
+ F-Créer le serveur web pour votre interface
+mkdir -p ~/cobra_web
+cd ~/cobra_web
+1- Installer les dépendances
+sudo apt install -y nodejs npm
+npm init -y
+npm install express
+2-installer server.js
+nano server.js
+
+3-contenu du server.js
+
+
+G-ROS BRIDGE 
+1-creation du fichier ”public” dans cobra_web puis copier les fichiers / .css , .html , .js les 11 codes de l’interface 
+2-Télécharger roslibjs pour la communication avec ROS2:
+cd ~/cobra_web/public 
+wget https://static.robotwebtools.org/roslibjs/current/roslib.min.js
+Rôle du ros bridge :
+-  Connecte l'interface web à ROS2 via WebSocket (rosbridge)
+ -  Capture les événements interface (clics, slider vitesse)
+ -  Convertit en messages ROS2 et les envoie à ui_controller.py
+ -  Met à jour l'interface avec les données reçues de RPI5
+
+3- Créer le fichier ros_bridge.js pour connecter l'interface à ROS2
+nano ~/cobra_web/public/ros_bridge.js
+
+cd ~/cobra_ws colcon build --packages-select cobra_control1 source install/setup.bash
+ls -la ~/cobra_web/public/ros_bridge.js
+ros2 launch cobra_control1 cobra_ui.launch.py
+http://localhost:3000
+http://192.168.137.112:3000
+
+
+H-
+1-sourcer l’istallation 
+source ~/cobra_ws/install/setup.bash
+2-Installer rosbridge pour la communication avec l'interface web:
+sudo apt install -y ros-humble-rosbridge-suite
+3-Créer le fichier de lancement pour le système complet
+Role du fichier ui_lunch.py
+-  ui_controller.py (nœud ROS2) 
+-  rosbridge_websocket (serveur WebSocket port 9090) 
+-  server.js (serveur web Express port 3000)
+
+# Créer le dossier launch s'il n'existe pas déjà
+mkdir -p ~/cobra_ws/src/cobra_control1/launch
+# Créer le fichier launch
+# Créer le dossier launch s'il n'existe pas déjà
+mkdir -p ~/cobra_ws/src/cobra_control1/launch
+# Créer le fichier launch
+cd launch
+Code : 
+
+
+
+5-metter a jour setup.py pour inclure le fichier launch 
+dans cobra_controler1 
+nano setup.py
+code :
+
+6-recompiler le package avec le fichier launch 
+cd ~/cobra_ws
+colcon build --packages-select cobra_control1
+source install/setup.bash
+7-tester le lancement complet 
+message 3 avant 
+Terminal RPI4 :
+ros2 launch cobra_control1 cobra_ui.launch.py
+Terminal RPI5 :
+ros2 topic echo /cobra/mode
+9-Configurer  la communication avec RPI5
+# Ajouter l'adresse IP de RPI5 aux hosts
+sudo bash -c 'echo "192.168.137.148  rpi5" >> /etc/hosts'
+# Configurer les variables d'environnement ROS
+echo "export ROS_DOMAIN_ID=42" >> ~/.bashrc
+echo "export ROS_LOCALHOST_ONLY=0" >> ~/.bashrc
+source ~/.bashrc
+
+Si on veut que l’interface soit ouverte que si le ros est utilisé 
+#!/bin/bash
+# Démarrer le serveur web en arrière-plan
+cd ~/cobra_web
+node server.js &
+SERVER_PID=$!
+# Attendre que le serveur démarre
+sleep 2
+# Démarrer les nœuds ROS2
+source /opt/ros/humble/setup.bash
+source ~/cobra_ws/install/setup.bash
+ros2 launch cobra_control1 cobra_ui.launch.py
+# Lorsque ROS2 se termine, arrêter le serveur web
+kill $SERVER_PID 
+
+Taper dans RPI5 
+http://192.168.137.112 :3000  dont l’adress ip de RPI4
+Test de la communication entre RPI4 et RPI5
+Une fois que vous avez configuré les deux Raspberry Pi:
+-Sur RPI4:
+# Dans un terminal, lancez le système
+
+
+ros2 launch cobra_control1 cobra_ui.launch.py
+cd obra_web
+node server.js 
+# Dans un autre terminal, testez l'envoi d'un message
+ros2 topic pub --once --qos-reliability reliable --qos-durability transient_local /cobra/needle_position_cmd cobra_msgs/msg/NeedlePosition "{x: 10.0, y: 20.0, z: 30.0, orientation: 0.0}"
+
+
+nano ~/.bashrc
